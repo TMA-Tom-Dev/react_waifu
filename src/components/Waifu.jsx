@@ -8,32 +8,55 @@ export default function Waifu() {
     const [tags, setTags] = useState([])
     const [isClear, setIsClear] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
-    const [choosenTag, setChoosenTag] = useState('maid')
+    const [choosenTag, setChoosenTag] = useState('')
+    const [selectedOption, setSelectedOption] = useState({
+        key: 13,
+        value: 'maid',
+        description: 'Cute womans or girl employed to do domestic work in their working uniform.'
+    })
 
     useEffect(() => {
         axios.get(`https://api.waifu.im/tags/?full=on`)
             .then(response => {
                 if (isClear === true) {
-                    setIsLoading(false)
-                    const fullResults = response.data.versatile.concat(response.data.nsfw);
-                    setTags(fullResults)
+                    setTimeout(() => {
+                        setIsLoading(false)
+                        const fullResults = response.data.versatile.concat(response.data.nsfw);
+                        setTags(fullResults)
+                    }, 3000);
+
                 } else {
-                    setIsLoading(false)
-                    const versatileResults = response.data.versatile;
-                    setTags(versatileResults)
-                    
+                    setTimeout(() => {
+                        setIsLoading(false)
+                        const versatileResults = response.data.versatile;
+                        setTags(versatileResults)
+                    }, 3000);
+
                 }
             }
             )
     }, [isClear])
 
     const handleOnChangeSwitch = (e) => {
-        message.info(isClear ? 'tags full is off' : 'tags full is on');
+
+        message.loading({ content: 'Loading...', key:'update'});
+        setIsLoading(true);
+
+        setTimeout(() => {
+            setIsLoading(false)
+            message.info({ content: isClear ? 'NSFW off' : 'NSFW on',key:'update', duration: 4});
+        }, 3000);
+
         setIsClear(e);
+
     }
 
-    const handleOnChangeSelectTag = (value) => {
+    const handleOnSelectTag = (value) => {
         setChoosenTag(value)
+    }
+
+    const handleOnChangeTag = (value) => {
+        setSelectedOption(value)
     }
 
     return (
@@ -45,13 +68,20 @@ export default function Waifu() {
                 size='small'
                 style={{ marginTop: "20px", width: 500, padding: "40px 0 0 40px" }}
             >
-                <Form.Item label="content clear">
-                    <Switch onChange={(e) => handleOnChangeSwitch(e)} loading={isLoading ? true : false} />
+                <Form.Item label="NSFW">
+                    <Switch onChange={(e) => handleOnChangeSwitch(e)} loading={isLoading} />
                 </Form.Item>
                 <Form.Item label="Tag">
                     <Select
-                        onSelect={handleOnChangeSelectTag}
-                        defaultValue={true}
+                        onSelect={handleOnSelectTag}
+                        loading={isLoading}
+                        onChange={handleOnChangeTag}
+                        labelInValue={false}
+                        value={selectedOption}
+                        defaultValue={
+                            selectedOption
+                        }
+                        disabled={isLoading}
                     >
                         {
                             tags.map((tag) => (
@@ -66,27 +96,27 @@ export default function Waifu() {
                 </Form.Item>
             </Form>
             <div className='tabs-wrapper'>
-            <Tabs
-                defaultActiveKey='1'
-                type='card'
-                centered
-            >
-                <Tabs.TabPane
-                    tab={`Tag ${choosenTag}`}
-                    key={1}
+                <Tabs
+                    defaultActiveKey='2'
+                    type='card'
+                    centered
                 >
-                    <ChoosenWaifu waifu={choosenTag} />
-                </Tabs.TabPane>
+                    <Tabs.TabPane
+                        tab={`Tag ${choosenTag === '' ? selectedOption.value : choosenTag}`}
+                        key={1}
+                    >
+                        <ChoosenWaifu waifu={choosenTag} />
+                    </Tabs.TabPane>
 
-                <Tabs.TabPane
-                    tab='Tag Random'
-                    key={2}
-                >
-                    <RandomWaifu />
-                </Tabs.TabPane>
-            </Tabs>
+                    <Tabs.TabPane
+                        tab='Tag Random'
+                        key={2}
+                    >
+                        <RandomWaifu />
+                    </Tabs.TabPane>
+                </Tabs>
             </div>
-            
+
         </>
     )
 }
