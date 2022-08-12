@@ -1,6 +1,7 @@
 import { Badge, Card, Image, Skeleton, Tooltip, Typography } from 'antd'
 import Meta from 'antd/lib/card/Meta'
 import axios from 'axios'
+import MaterialIconsReact from 'material-icons-react'
 import moment from 'moment'
 import React, { Fragment, useEffect, useState } from 'react'
 
@@ -35,11 +36,15 @@ export default function RandomWaifu() {
         <Fragment>
             <Badge count={waifuResult.favourites}>
                 <Card
+                hoverable
                     style={{ width: 210 }}
                     cover={
                         <Image src={`${waifuResult.url}`} alt={`${waifuResult.image_id}`} width={"200px"}/>
                     }
                     loading={loading}
+                    actions={[
+                        <MaterialIconsReact icon={"favorite_border"} />
+                    ]}
                 >
                     <Skeleton loading={loading} avatar active>
                         

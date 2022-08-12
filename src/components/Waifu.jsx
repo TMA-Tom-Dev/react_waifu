@@ -1,19 +1,22 @@
 import { Form, message, Select, Switch, Tabs, Tooltip, Typography } from 'antd'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-import ChoosenWaifu from './ChoosenWaifu'
+import ChoseWaifu from './ChoseWaifu'
+
 import RandomWaifu from './randomWaifu'
 
 export default function Waifu() {
     const [tags, setTags] = useState([])
     const [isClear, setIsClear] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
-    const [choosenTag, setChoosenTag] = useState('')
+    const [choosenTag, setChoosenTag] = useState('maid')
     const [selectedOption, setSelectedOption] = useState({
         key: 13,
         value: 'maid',
         description: 'Cute womans or girl employed to do domestic work in their working uniform.'
     })
+    const [isBlur, setIsBlur] = useState(true);
+    const [formDisable, setFormDisable] = useState(false)
 
     useEffect(() => {
         axios.get(`https://api.waifu.im/tags/?full=on`)
@@ -37,17 +40,23 @@ export default function Waifu() {
             )
     }, [isClear])
 
-    const handleOnChangeSwitch = (e) => {
+    const handleOnChangeClear = (value) => {
 
-        message.loading({ content: 'Loading...', key:'update'});
+        message.loading({ content: 'Loading...', key: 'update' });
         setIsLoading(true);
 
         setTimeout(() => {
-            setIsLoading(false)
-            message.info({ content: isClear ? 'NSFW off' : 'NSFW on',key:'update', duration: 4});
+            if (value === false) {
+                setChoosenTag(tags[0]['name']);
+                setSelectedOption(tags[0])
+
+                setIsLoading(false)
+
+                message.info({ content: isClear ? 'NSFW off' : 'NSFW on', key: 'update', duration: 4 });
+            }
         }, 3000);
 
-        setIsClear(e);
+        setIsClear(value);
 
     }
 
@@ -56,7 +65,35 @@ export default function Waifu() {
     }
 
     const handleOnChangeTag = (value) => {
-        setSelectedOption(value)
+            tags.forEach((tag) => {
+                if(tag.name === value){
+                    setSelectedOption({
+                        value: tag['name'],
+                        description: tag.description,
+                        key: tag['tag_id']
+                    })
+                }
+            })
+    }
+
+    const handleOnChangeBlur = (value) => {
+        message.loading({ content: 'Loading...', key: 'update' });
+        setIsLoading(true);
+        setTimeout(() => {
+            setIsBlur(value)
+
+            setIsLoading(false)
+
+            message.info({ content: isBlur ? 'Blur on' : 'Blur off', key: 'update', duration: 4 });
+        }, 3000);
+    }
+
+    const handleFormDisable = (key, event) => {
+        if (key === '2' && event.type === 'click') {
+            setFormDisable(true)
+        } else {
+            setFormDisable(false)
+        }
     }
 
     return (
@@ -67,20 +104,22 @@ export default function Waifu() {
                 layout="vertical"
                 size='small'
                 style={{ marginTop: "20px", width: 500, padding: "40px 0 0 40px" }}
+                disabled={formDisable}
             >
-                <Form.Item label="NSFW">
-                    <Switch onChange={(e) => handleOnChangeSwitch(e)} loading={isLoading} />
+                <Form.Item label="Blur">
+                    <Switch onChange={(e) => handleOnChangeBlur(e)} loading={isLoading} />
                 </Form.Item>
-                <Form.Item label="Tag">
+                <Form.Item label="NSFW">
+                    <Switch onChange={(e) => handleOnChangeClear(e)} loading={isLoading} />
+                </Form.Item>
+                <Form.Item label="Tags">
                     <Select
                         onSelect={handleOnSelectTag}
                         loading={isLoading}
                         onChange={handleOnChangeTag}
                         labelInValue={false}
-                        value={selectedOption}
-                        defaultValue={
-                            selectedOption
-                        }
+                        value={{...selectedOption}}
+                        defaultValue={{...selectedOption}}
                         disabled={isLoading}
                     >
                         {
@@ -97,15 +136,18 @@ export default function Waifu() {
             </Form>
             <div className='tabs-wrapper'>
                 <Tabs
-                    defaultActiveKey='2'
+                    defaultActiveKey='1'
                     type='card'
                     centered
+                    onTabClick={(key, event) => {
+                        handleFormDisable(key, event)
+                    }}
                 >
                     <Tabs.TabPane
                         tab={`Tag ${choosenTag === '' ? selectedOption.value : choosenTag}`}
                         key={1}
                     >
-                        <ChoosenWaifu waifu={choosenTag} />
+                        <ChoseWaifu waifu={choosenTag} loadingWaifu={isLoading} isBlur={isBlur} />
                     </Tabs.TabPane>
 
                     <Tabs.TabPane
