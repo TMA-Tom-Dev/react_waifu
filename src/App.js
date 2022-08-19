@@ -17,7 +17,7 @@ function App() {
     <Router>
       <Card style={{ width: 500, margin: "100px auto", padding: "40px" }}>
         <Routes>
-          <Route path="/waifu">
+          <Route path='/waifu'>
             <div className="App">
               <Waifu />
             </div>
