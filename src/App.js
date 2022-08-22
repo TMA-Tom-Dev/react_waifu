@@ -1,6 +1,6 @@
 import { Card } from '@mui/material';
 import Amplify from 'aws-amplify';
-import { Route, Router, Routes } from 'react-router-dom';
+import { Route, Router, Switch } from 'react-router-dom';
 import './App.css';
 import { awsCognito } from './cognito';
 import Waifu from './components/Waifu';
@@ -16,13 +16,13 @@ function App() {
   return (
     <Router>
       <Card style={{ width: 500, margin: "100px auto", padding: "40px" }}>
-        <Routes>
+        <Switch>
           <Route path='/waifu'>
             <div className="App">
               <Waifu />
             </div>
           </Route>
-        </Routes>
+        </Switch>
       </Card>
     </Router>
   );
