@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 
-export default function UseInput({initValue}) {
+function UseInput({initValue}) {
     const [value, setValue] = useState(initValue);
 
     return {
@@ -17,3 +17,5 @@ export default function UseInput({initValue}) {
         }
     }
 }
+
+export default UseInput

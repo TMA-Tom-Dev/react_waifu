@@ -1,9 +1,14 @@
-import { Card } from '@mui/material';
+import { Auth0Provider } from '@auth0/auth0-react';
 import Amplify from 'aws-amplify';
-import { Route, Router, Switch } from 'react-router-dom';
+import { Link, Route, Switch, } from 'react-router-dom';
 import './App.css';
 import { awsCognito } from './cognito';
+import Dashboard from './components/Dashboard';
+import Login from './components/Login';
+import LoginButton from './components/LoginButton';
+import SignUp from './components/SignUp';
 import Waifu from './components/Waifu';
+import Confirmation from './Confirmation';
 
 Amplify.configure({
   aws_cognito_region: awsCognito.REGION,
@@ -14,17 +19,63 @@ Amplify.configure({
 
 function App() {
   return (
-    <Router>
-      <Card style={{ width: 500, margin: "100px auto", padding: "40px" }}>
+    <Auth0Provider
+      domain='dev-0xe9aint.us.auth0.com'
+      clientId='yRP2iic5uFjlCbT9O68o6pkEe11wy8qg'
+      redirectUri={window.location.origin}
+    >
+
+      <div className="App">
+        <LoginButton/>
+        <ul>
+          <li>
+            <Link to="/" children={<h3>Index page</h3>}>Home</Link>
+          </li>
+          <li>
+            <Link to="/waifu" children={<Waifu/>}>
+              Waifu
+            </Link>
+          </li>
+          <li>
+            <Link to="/login">
+              Login
+            </Link>
+          </li>
+          <li>
+            <Link to="/signup">
+              SignUp
+            </Link>
+          </li>
+          <li>
+            <Link to="/dashboard">
+              Dashboard
+            </Link>
+          </li>
+        </ul>
+
         <Switch>
-          <Route path='/waifu'>
-            <div className="App">
-              <Waifu />
-            </div>
+          <Route exact path="/">
+            <h3>Index page</h3>
+          </Route>
+          <Route path="/waifu">
+            <Waifu />
+          </Route>
+          <Route path="/login">
+            <Login />
+          </Route>
+          <Route path="/signup">
+            <SignUp />
+          </Route>
+          <Route path={"/dashboard"}>
+            <Dashboard />
+          </Route>
+          <Route path={"/confirmation"}>
+            <Confirmation/>
           </Route>
         </Switch>
-      </Card>
-    </Router>
+
+      </div>
+      </Auth0Provider>
   );
 }
 
